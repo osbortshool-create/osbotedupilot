@@ -1,0 +1,219 @@
+<%- include('../partials/header', { title: 'Result Token Management', campus }) %>
+
+<div class="container-fluid mt-4">
+  <div class="row mb-4">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h4 class="mb-0"><i class="fas fa-key"></i> Result Token Management</h4>
+          <span class="badge badge-primary"><%= campus %> Campus</span>
+        </div>
+        <div class="card-body">
+          <!-- Filters -->
+          <form method="GET" action="/tokens" class="form-inline mb-3">
+            <input type="text" name="search" class="form-control mr-2 mb-1" placeholder="Search token, ID, or name" value="<%= filters.search || '' %>">
+            <select name="class" class="form-control mr-2 mb-1">
+              <option value="">All Classes</option>
+              <% classes.forEach(c => { %>
+                <option value="<%= c %>" <%= filters.classFilter === c ? 'selected' : '' %>><%= c %></option>
+              <% }) %>
+            </select>
+            <select name="term" class="form-control mr-2 mb-1">
+              <option value="">All Terms</option>
+              <option value="First Term" <%= filters.term === 'First Term' ? 'selected' : '' %>>First Term</option>
+              <option value="Second Term" <%= filters.term === 'Second Term' ? 'selected' : '' %>>Second Term</option>
+              <option value="Third Term" <%= filters.term === 'Third Term' ? 'selected' : '' %>>Third Term</option>
+            </select>
+            <select name="session" class="form-control mr-2 mb-1">
+              <option value="">All Sessions</option>
+              <% sessions.forEach(s => { %>
+                <option value="<%= s.sessionName %>" <%= filters.sessionFilter === s.sessionName ? 'selected' : '' %>><%= s.sessionName %></option>
+              <% }) %>
+            </select>
+            <button type="submit" class="btn btn-primary mb-1"><i class="fas fa-search"></i> Filter</button>
+            <a href="/tokens" class="btn btn-secondary mb-1 ml-1"><i class="fas fa-redo"></i> Reset</a>
+          </form>
+
+          <!-- Bulk actions -->
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <div class="card bg-light">
+                <div class="card-body">
+                  <h6>Bulk Generate Tokens</h6>
+                  <form id="bulkGenerateForm" class="form-inline">
+                    <select name="className" class="form-control mr-1 mb-1" required>
+                      <option value="">Select Class</option>
+                      <% classes.forEach(c => { %>
+                        <option value="<%= c %>"><%= c %></option>
+                      <% }) %>
+                    </select>
+                    <select name="term" class="form-control mr-1 mb-1" required>
+                      <option value="First Term">First Term</option>
+                      <option value="Second Term">Second Term</option>
+                      <option value="Third Term">Third Term</option>
+                    </select>
+                    <select name="session" class="form-control mr-1 mb-1" required>
+                      <% sessions.forEach(s => { %>
+                        <option value="<%= s.sessionName %>" <%= activeSession && s.sessionName === activeSession.sessionName ? 'selected' : '' %>><%= s.sessionName %></option>
+                      <% }) %>
+                    </select>
+                    <button type="submit" class="btn btn-success mb-1"><i class="fas fa-bolt"></i> Generate All</button>
+                  </form>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="card bg-light">
+                <div class="card-body">
+                  <h6>Bulk Regenerate Tokens</h6>
+                  <form id="bulkRegenerateForm" class="form-inline">
+                    <select name="className" class="form-control mr-1 mb-1" required>
+                      <option value="">Select Class</option>
+                      <% classes.forEach(c => { %>
+                        <option value="<%= c %>"><%= c %></option>
+                      <% }) %>
+                    </select>
+                    <select name="term" class="form-control mr-1 mb-1" required>
+                      <option value="First Term">First Term</option>
+                      <option value="Second Term">Second Term</option>
+                      <option value="Third Term">Third Term</option>
+                    </select>
+                    <select name="session" class="form-control mr-1 mb-1" required>
+                      <% sessions.forEach(s => { %>
+                        <option value="<%= s.sessionName %>"><%= s.sessionName %></option>
+                      <% }) %>
+                    </select>
+                    <button type="submit" class="btn btn-warning mb-1"><i class="fas fa-sync"></i> Regenerate All</button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <a href="/tokens/export<%= filters.classFilter ? '?class=' + filters.classFilter : '' %><%= filters.term ? '&term=' + filters.term : '' %><%= filters.sessionFilter ? '&session=' + filters.sessionFilter : '' %>" class="btn btn-info btn-sm">
+              <i class="fas fa-download"></i> Export CSV
+            </a>
+            <a href="#" id="bulkSlipBtn" class="btn btn-primary btn-sm">
+              <i class="fas fa-print"></i> Print All Slips (Filtered)
+            </a>
+          </div>
+
+          <!-- Tokens table -->
+          <div class="table-responsive">
+            <table class="table table-striped table-hover">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Token</th>
+                  <th>Student ID</th>
+                  <th>Student Name</th>
+                  <th>Class</th>
+                  <th>Session</th>
+                  <th>Term</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% if (tokens.length === 0) { %>
+                  <tr><td colspan="9" class="text-center text-muted">No tokens found. Generate tokens using the bulk actions above.</td></tr>
+                <% } %>
+                <% tokens.forEach((token, idx) => { %>
+                  <tr>
+                    <td><%= idx + 1 %></td>
+                    <td><code class="font-weight-bold"><%= token.token %></code></td>
+                    <td><%= token.studentID %></td>
+                    <td><%= token.studentName %></td>
+                    <td><%= token.className %></td>
+                    <td><%= token.session %></td>
+                    <td><%= token.term %></td>
+                    <td>
+                      <% if (token.isActive) { %>
+                        <span class="badge badge-success">Active</span>
+                      <% } else { %>
+                        <span class="badge badge-secondary">Inactive</span>
+                      <% } %>
+                    </td>
+                    <td>
+                      <a href="/tokens/slip/<%= token._id %>" class="btn btn-sm btn-outline-primary" title="Print Slip">
+                        <i class="fas fa-print"></i>
+                      </a>
+                      <button class="btn btn-sm btn-outline-warning regenerate-btn" data-id="<%= token._id %>" title="Regenerate">
+                        <i class="fas fa-sync"></i>
+                      </button>
+                    </td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.getElementById('bulkGenerateForm')?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const formData = new FormData(e.target);
+  const data = Object.fromEntries(formData);
+  if (!confirm(`Generate tokens for all students in ${data.className} for ${data.term}, ${data.session}?`)) return;
+  try {
+    const res = await fetch('/tokens/bulk-generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    const result = await res.json();
+    if (result.success) { alert(result.message); location.reload(); }
+    else { alert(result.message || 'Failed'); }
+  } catch (err) { alert('Error: ' + err.message); }
+});
+
+document.getElementById('bulkRegenerateForm')?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const formData = new FormData(e.target);
+  const data = Object.fromEntries(formData);
+  if (!confirm(`Regenerate ALL tokens for ${data.className} - ${data.term}, ${data.session}? This will invalidate old tokens.`)) return;
+  try {
+    const res = await fetch('/tokens/bulk-regenerate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    const result = await res.json();
+    if (result.success) { alert(result.message); location.reload(); }
+    else { alert(result.message || 'Failed'); }
+  } catch (err) { alert('Error: ' + err.message); }
+});
+
+document.querySelectorAll('.regenerate-btn').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    const id = btn.dataset.id;
+    if (!confirm('Regenerate this token? The old token will be invalidated.')) return;
+    try {
+      const res = await fetch(`/tokens/regenerate/${id}`, { method: 'POST' });
+      const result = await res.json();
+      if (result.success) { alert('New token: ' + result.token); location.reload(); }
+      else { alert(result.message || 'Failed'); }
+    } catch (err) { alert('Error: ' + err.message); }
+  });
+});
+
+document.getElementById('bulkSlipBtn')?.addEventListener('click', (e) => {
+  e.preventDefault();
+  const params = new URLSearchParams(window.location.search);
+  const className = params.get('class');
+  const term = params.get('term');
+  const session = params.get('session');
+  if (!className || !term || !session) {
+    alert('Please filter by Class, Term, and Session first to print all slips.');
+    return;
+  }
+  window.location.href = `/tokens/bulk-slip?className=${encodeURIComponent(className)}&term=${encodeURIComponent(term)}&session=${encodeURIComponent(session)}`;
+});
+</script>
+
+<%- include('../partials/footer') %>
