@@ -448,6 +448,50 @@ body {
         border-top: 1px solid rgba(255, 255, 255, 0.1);
     }
 
+    .nav-container {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .nav-brand {
+        padding: 0.2rem;
+    }
+
+    .nav-logo {
+        width: 36px !important;
+        height: 36px !important;
+    }
+
+    .nav-controls {
+        gap: 0.5rem;
+        align-items: center;
+        justify-content: flex-end;
+    }
+
+    .notification-btn,
+    .sidebar-toggle {
+        font-size: 1.2rem;
+        padding: 0.35rem;
+    }
+
+    .notification-badge {
+        width: 16px;
+        height: 16px;
+        font-size: 0.65rem;
+        top: 0.15rem;
+        right: 0.15rem;
+    }
+
+    .campus-badge {
+        font-size: 0.65rem;
+        padding: 4px 8px;
+        margin-left: 0;
+    }
+
+    .nav-user {
+        display: none;
+    }
+
     .dashboard,
     .student-portal,
     .page-content {
