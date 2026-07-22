@@ -118,6 +118,71 @@
                 gap: 0.5rem;
             }
             
+            .nav-container {
+                flex-wrap: nowrap;
+                gap: 0.4rem;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .nav-brand {
+                flex: 0 0 auto;
+            }
+
+            .nav-controls {
+                display: flex;
+                gap: 0.35rem;
+                align-items: center;
+                justify-content: flex-end;
+                flex-wrap: nowrap;
+                flex: 1 1 auto;
+                min-width: 0;
+            }
+
+            .nav-logo {
+                width: 34px;
+                height: 34px;
+            }
+
+            .notification-btn,
+            .sidebar-toggle {
+                font-size: 1.1rem;
+                padding: 0.3rem;
+            }
+
+            .campus-badge {
+                font-size: 0.65rem;
+                padding: 3px 8px;
+                margin-left: 0;
+                max-width: 90px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .nav-user.desktop-only {
+                display: none;
+            }
+
+            .nav-user.mobile-only {
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+                padding: 0.75rem 0.75rem 0.5rem;
+                width: 100%;
+            }
+
+            .nav-user.mobile-only .logout-btn {
+                width: 100%;
+                display: inline-flex;
+                align-items: center;
+                justify-content: flex-start;
+                gap: 0.5rem;
+                padding: 0.5rem 0.75rem;
+                border-radius: 0.5rem;
+            }
+
             .brand-icon {
                 font-size: 1.4rem;
             }
@@ -140,7 +205,7 @@
 <nav class="navbar">
   <div class="nav-container">
    <div class="nav-brand" id="navBrand">
-      <img src="https://i.imgur.com/NiDDWOx.png" style="height: 50px !important; width: 150px !important;" alt="EduPilot Logo" class="nav-logo">
+      <img src="https://i.imgur.com/NiDDWOx.png" alt="EduPilot Logo" class="nav-logo">
     </div>
 
     <div class="nav-controls">
